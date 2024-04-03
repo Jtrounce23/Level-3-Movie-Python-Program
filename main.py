@@ -14,13 +14,33 @@ print("________________________________")
 print()
 print("Welcome to the Movie App")
 print()
-api_key = str(input("Please enter your TMDB API key here: "))
 
-#gets the API key
+while True:
+    api_key = str(input("Please enter your TMDB API key here: "))
+    try:
+        test_data = requests.get(f"https://api.themoviedb.org/3/trending/all/day?api_key={api_key}")
+        if test_data.status_code == 200:
+            break
+        else:
+            print()
+            print("-- ERROR --\nplease check your API key is correct")
+            print()
+            print("________________________________")
+            print()
+            continue
+    except:
+        print()
+        print("-- ERROR --\nplease check your connection is working")
+        print()
+        print("________________________________")
+        print()
+        continue
+
+# gets the API key & checks if its valid, along with the connection
 
 
 class Movie():
-
+    """Attains movie info and uses it to display it"""
 
     def __init__(self, title, year, cast, plot, rating):
         """
@@ -36,10 +56,8 @@ class Movie():
         self.plot = plot
         self.rating = rating
 
-
     def display_movie_data(self):
-        """Gets all the relevent info for the film and formats it to be displayed nicely
-        """
+        """Get all the relevent info for the film and format it to be displayed nicely."""
         print("________________________________")
         print()
         print(f"""Title: {self.title}\nRelease Date: {self.year}
@@ -55,7 +73,7 @@ Vote Average: {self.rating}\n\nPlot: {self.plot}""")
 
 
 class API():
-
+    """This class involves everything to do with the API"""
 
     def __init__(self):
         """
@@ -73,72 +91,75 @@ class API():
 
         self.top_cast = []
 
-
-    def call_api(self, TAG, list_name):
-        """calls the api by combining a base and tag url,
-        then it tests whether its worked & if results have been found or not
+    def call_api(self, tag, list_name):
+        """call the api by combining a base and tag url.
+        It then tests whether its worked & if results have been found or not
         """
-        movie_responce = requests.get(self.API_BASE_URL + TAG)
+        try:
+            movie_responce = requests.get(self.API_BASE_URL + tag)
 
-        if movie_responce.status_code == 200:  # This means the movie responce worked fine
-            json_data = movie_responce.json()
-            try:
-                if len(json_data[f'{list_name}']) != 0:
-                    return(json_data)
-            except:
-                if len(json_data) != 0:
-                    return(json_data)
-        else:
-            print('-- failed to call API --')  # When movie responce doesn't work
+            if movie_responce.status_code == 200:  # This means the movie responce worked fine
+                json_data = movie_responce.json()
+                try:
+                    if len(json_data[f'{list_name}']) != 0:
+                        return(json_data)
+                except:
+                    if len(json_data) != 0:
+                        return(json_data)
+            else:
+                print('-- failed to call API --')  # When movie responce doesn't work
+        except:
+            print("-- Failed to access API --")
+            return("Failed")
 
-
-    def get_movie_data(self, TAG):
-        """This function is used for searches where there will be multiple results,
-        i.e. when searching for oppenheimer there will be many results with oppenheimer.
-        after you enter the film you want it gets the data and gives that to the display_movie_data
-        function from the Movie class, to display the info to the user.
+    def get_movie_data(self, tag):
+        """Get the info for a film using the results of the call API.
+        It has to understand what kind of results it has,
+        then sends it to the display movie in Movie class 
         """
         try:  # there are results
-            json_data = self.call_api(TAG, 'results')
+            
+            json_data = self.call_api(tag, 'results')
 
-            max_results = 5
+            if json_data != "Failed":  # checking if json_data didn't work
+                max_results = 5
 
-            print("________________________________")
-            print()
-            print("Results:".upper())
+                print("________________________________")
+                print()
+                print("Results:".upper())
 
-            try:  # for when there are multiple films
-                raw_data = json_data['results']
-                while True:
-                    i = 0
-                    while i < len(raw_data) and i < max_results:
-                        print()
-                        print(i+1, raw_data[i]['title'])
-                        i += 1
+                try:  # for when there are multiple films
+                    raw_data = json_data['results']
+                    while True:
+                        i = 0
+                        while i < len(raw_data) and i < max_results:
+                            print()
+                            print(i+1, raw_data[i]['title'])
+                            i += 1
 
-                    if max_results > len(raw_data):
-                        print()
-                        print("This is the max number of results")
-                        print()
-                    else:
-                        print()
-                        print("showing", max_results, "results")
-                        print()
+                        if max_results > len(raw_data):
+                            print()
+                            print("This is the max number of results")
+                            print()
+                        else:
+                            print()
+                            print("showing", max_results, "results")
+                            print()
 
-                    which_movie = input_val("enter the corresponding number to select the film, or enter 0 to show more results: ", int)
-                    if which_movie == 0:
-                        max_results += 5
-                        continue
+                        which_movie = input_val("enter the corresponding number to select the film, or enter 0 to show more results: ", int)
+                        if which_movie == 0:
+                            max_results += 5
+                            continue
 
-                    results_movie = raw_data[which_movie - 1]
+                        results_movie = raw_data[which_movie - 1]
+                        film_id = results_movie['id']
+                        break
+                except: # for when there is only one film
+                    results_movie = json_data
                     film_id = results_movie['id']
-                    break
-            except: # for when there is only one film
-                results_movie = json_data
-                film_id = results_movie['id']
 
-            #This try except works out whether you have come from search ID or not
-            #This is important as the data results you get for each are different
+                # This try except works out whether you have come from search ID or not
+                # This is important as the data results you get for each are different
 
             cast_data = self.call_api(self.API_MOVIE_URL_TAG + f"{film_id}" + self.API_CREDITS_URL_TAG, 'cast')
 
@@ -163,7 +184,7 @@ class API():
                     a = 2
                 i += 1
 
-            #checks if movie is already in watchlist so not to have it in there twice
+            # checks if movie is already in watchlist so not to have it in there twice
 
             if a == 1:
                 add_to_watchlist(results_movie)
@@ -171,49 +192,42 @@ class API():
         except:  # no results
             print("-- NO RESULTS FOUND --")
 
-
     def search_name(self, movie_name):
-        """uses get_movie_data function to search for a film by name
-        """
+        """use get_movie_data function to search for a film by name"""
         self.get_movie_data(self.API_SEARCH_TITLE_URL_TAG + movie_name)
 
-
     def search_year(self, movie_year):
-        """uses the get_movie_data function to search for top movies by year released
-        """
+        """use the get_movie_data function to search for top movies by year released"""
         self.get_movie_data(self.API_DISCOVER_YEAR_URL_TAG + movie_year)
 
-
     def search_ID(self, movie_ID):
-        """when searching for ID there should only be one result, hence why it doesnt use get_movie_data,
-        instead it simply uses the call_api function to acquire the data, as well as the get cast, and then
-        gives it to the display_movie_data function from the Movie class to present it.
-        """
+        """use the get_movie_data function to get movie by ID"""
         self.get_movie_data(self.API_MOVIE_URL_TAG + f'{movie_ID}' + self.API_KEY_URL_TAG)
 
-
     def get_trending(self):
-        """uses the call_api function to get trending, 
-        and then sorts the movies from tv series to give the 10 trending movies
+        """use the call_api function to get trending. 
+        It then sorts the movies from tv series to give the 10 trending movies
         """
         trending_id = []
         print("________________________________")
         print()
         print("Top trending movies:".upper())
         print()
+        
         json_data = self.call_api(self.API_TRENDING_URL_TAG, 'results')
+        
+        if json_data != "Failed":
+            i = 0
+            a = 0
+            while i < len(json_data['results']) and a < 10:
+                if json_data['results'][i]['media_type'] == 'movie':
+                    print(f'{a+1})', json_data['results'][i]['title'])
+                    trending_id.append(json_data['results'][i]['id'])
+                    a += 1
+                i += 1
 
-        i = 0
-        a = 0
-        while i < len(json_data['results']) and a < 10:
-            if json_data['results'][i]['media_type'] == 'movie':
-                print(f'{a+1})', json_data['results'][i]['title'])
-                trending_id.append(json_data['results'][i]['id'])
-                a += 1
-            i += 1
-
-        #This uses call_api to get all the trending movies, however this gets a combination of movies & tv series,
-        #so the function has to sort the movies from the tv series then stores the id in a list.
+        # This uses call_api to get all the trending movies, however this gets a combination of movies & tv series,
+        # so the function has to sort the movies from the tv series then stores the id in a list.
 
         print()
         while True:
@@ -230,8 +244,8 @@ class API():
             else:
                 break
 
-        #The reason it stores the id is so that if the user wants to see the movie info for a trending film,
-        #it doesnt give multiple results by that name, and can instead search by ID
+        # The reason it stores the id is so that if the user wants to see the movie info for a trending film,
+        # it doesnt give multiple results by that name, and can instead search by ID
 
 
 api = API()
@@ -252,9 +266,7 @@ def input_val(question, inp_type):
 
 
 def add_to_watchlist(results_movie):
-    """allows the user to append a movie the the watchlist, 
-    or return to the menu if they dont
-    """
+    """allow the user to append a movie the the watchlist or return to the menu if they dont"""
     while True:
         print("________________________________")
         print()
@@ -275,8 +287,7 @@ def add_to_watchlist(results_movie):
 
 
 def remove_watchlist():
-    """This allows the user to remove a movie from the watchlist
-    """
+    """Allow the user to remove a movie from the watchlist"""
     while True:
         remove_watchlist = input_val("Which film do you want to remove from watchlist? ", int)
         try:
@@ -289,8 +300,8 @@ def remove_watchlist():
 
 
 def print_watchlist():
-    """prints each movie name in the watchlist, then asks the user whether they would like to
-    view a movie, remove a movie, or return back to the menu
+    """print each movie name in the watchlist.
+    Then it asks the user whether they would like to view a movie, remove a movie, or return back to the menu
     """
     while True:
         print("________________________________")
@@ -302,14 +313,14 @@ def print_watchlist():
             print(f'{i+1})', movie_watchlist[i][0])
             i += 1
 
-        #prints each movie in the watchlist
+        # prints each movie in the watchlist
 
         print()
         if len(movie_watchlist) == 0:
             print("-- Empty --")
             time.sleep(1)
             break
-            #checks to see if watchlist is empty
+            # checks to see if watchlist is empty
         else:
             print("________________________________")
             print()
@@ -324,44 +335,44 @@ def print_watchlist():
             else:
                 print("invalid input")
 
-            #uses search_ID to get movie data as similar to the trending function the ID is stored in the watchlist for convenience
-            #uses remove_watchlist function to remove a movie
+            # uses search_ID to get movie data as similar to the trending function the ID is stored in the watchlist for convenience
+            # uses remove_watchlist function to remove a movie
 
 
 def menu():
-    """menu function, asks the user what they would like to do, 
-    and they respond by entering the corresponding number
+    """menu function.
+    Asks the user what they would like to do, and they respond by entering the corresponding number
     """
     while True:
         print("________________________________")
         print()
         print(f"Would you like to:\n1) Show trending movies?\n2) Search for a film?\n3) view watchlist?\n4) Exit?")
-        #main menu
+        # main menu
         main_menu = input_val('', int)
 
-        if main_menu == 1: #gets top 10 trending movies
+        if main_menu == 1: # gets top 10 trending movies
             api.get_trending()
 
-        elif main_menu == 2: #search menu
+        elif main_menu == 2: # search menu
             print("________________________________")
             print()
             while True:
                 print(f"Would you like to:\n1) Search by name?\n2) Search by year?\n3) Search by ID")
                 menu_search = input_val('', int)
 
-                if menu_search == 1: #search by name
+                if menu_search == 1: # search by name
                     print()
                     movie_name = input_val("Movie Name: ", str)
                     api.search_name(movie_name)
                     break
 
-                elif menu_search == 2: #search by year of release
+                elif menu_search == 2: # search by year of release
                     print()
                     movie_year = input_val("Movie Year: ", int)
                     api.search_year(f'{movie_year}')
                     break
 
-                elif menu_search == 3: #search by movie ID
+                elif menu_search == 3: # search by movie ID
                     print()
                     ID = input_val("Film ID: ", int)
                     api.search_ID(ID)
@@ -372,10 +383,10 @@ def menu():
                     print("please enter the corresponding number to the question")
                     print()
 
-        elif main_menu == 3: #prints watchlist
+        elif main_menu == 3: # prints watchlist
             print_watchlist()
 
-        elif main_menu == 4: #exits
+        elif main_menu == 4: # exits
             exit()
 
         else:
