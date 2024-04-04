@@ -326,22 +326,22 @@ def menu():
         # main menu
         main_menu = input_val('', int)
 
-        if main_menu == 1: # gets top 10 trending movies
+        if main_menu == 1:  # gets top 10 trending movies
             api.get_trending()
 
-        elif main_menu == 2: # search menu
+        elif main_menu == 2:  # search menu
             print("________________________________\n")
             while True:
                 print(f"Would you like to:\n1) Search by name?\n2) Search by year?\n3) Search by ID")
                 menu_search = input_val('', int)
 
-                if menu_search == 1: # search by name
+                if menu_search == 1:  # search by name
                     print()
                     movie_name = input_val("Movie Name: ", str)
                     api.search_name(movie_name)
                     break
 
-                elif menu_search == 2: # search by year of release
+                elif menu_search == 2:  # search by year of release
                     print()
                     movie_year = input_val("Movie Year: ", int)
                     if movie_year > 1850 and movie_year < 2030:
@@ -350,7 +350,7 @@ def menu():
                         print("\n-- NO RESULTS FOUND --\n")
                     break
 
-                elif menu_search == 3: # search by movie ID
+                elif menu_search == 3:  # search by movie ID
                     print()
                     ID = input_val("Film ID: ", int)
                     api.search_ID(ID)
@@ -359,10 +359,10 @@ def menu():
                 else:
                     print("\nplease enter the corresponding number to the question\n")
 
-        elif main_menu == 3: # prints watchlist
+        elif main_menu == 3:  # prints watchlist
             print_watchlist()
 
-        elif main_menu == 4: # exits
+        elif main_menu == 4:  # exits
             exit()
 
         else:
