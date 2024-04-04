@@ -15,29 +15,6 @@ print()
 print("Welcome to the Movie App")
 print()
 
-while True:
-    api_key = str(input("Please enter your TMDB API key here: "))
-    try:
-        test_data = requests.get(f"https://api.themoviedb.org/3/trending/all/day?api_key={api_key}")
-        if test_data.status_code == 200:
-            break
-        else:
-            print()
-            print("-- ERROR --\nplease check your API key is correct")
-            print()
-            print("________________________________")
-            print()
-            continue
-    except:
-        print()
-        print("-- ERROR --\nplease check your connection is working")
-        print()
-        print("________________________________")
-        print()
-        continue
-
-# gets the API key & checks if its valid, along with the connection
-
 
 class Movie():
     """Attains movie info and uses it to display it"""
@@ -58,14 +35,12 @@ class Movie():
 
     def display_movie_data(self):
         """Get all the relevent info for the film and format it to be displayed nicely."""
-        print("________________________________")
-        print()
+        print("________________________________\n")
         print(f"""Title: {self.title}\nRelease Date: {self.year}
 Vote Average: {self.rating}\n\nPlot: {self.plot}""")
         print()
 
-        print("Top Cast:")
-        print()
+        print("Top Cast:\n")
         i = 0
         while i < len(self.cast):
             print(self.cast[i])
@@ -124,9 +99,7 @@ class API():
             if json_data != "Failed":  # checking if json_data didn't work
                 max_results = 5
 
-                print("________________________________")
-                print()
-                print("Results:".upper())
+                print("________________________________\n\nRESULTS:")
 
                 try:  # for when there are multiple films
                     raw_data = json_data['results']
@@ -138,13 +111,9 @@ class API():
                             i += 1
 
                         if max_results > len(raw_data):
-                            print()
-                            print("This is the max number of results")
-                            print()
+                            print("\nThis is the max number of results\n")
                         else:
-                            print()
-                            print("showing", max_results, "results")
-                            print()
+                            print("\nshowing", max_results, "results\n")
 
                         which_movie = input_val("enter the corresponding number to select the film, or enter 0 to show more results: ", int)
                         if which_movie == 0:
@@ -199,7 +168,7 @@ class API():
     def search_year(self, movie_year):
         """use the get_movie_data function to search for top movies by year released"""
         self.get_movie_data(self.API_DISCOVER_YEAR_URL_TAG + movie_year)
-
+        
     def search_ID(self, movie_ID):
         """use the get_movie_data function to get movie by ID"""
         self.get_movie_data(self.API_MOVIE_URL_TAG + f'{movie_ID}' + self.API_KEY_URL_TAG)
@@ -209,10 +178,7 @@ class API():
         It then sorts the movies from tv series to give the 10 trending movies
         """
         trending_id = []
-        print("________________________________")
-        print()
-        print("Top trending movies:".upper())
-        print()
+        print("________________________________\n\nTOP TRENDING MOVIES:\n")
         
         json_data = self.call_api(self.API_TRENDING_URL_TAG, 'results')
         
@@ -237,16 +203,28 @@ class API():
                     self.search_ID(trending_id[trending_menu - 1])
                     break
                 except:
-                    print()
-                    print("-- Please either enter 0, or the number corresponding to the film --")
-                    print()
-
+                    print("\n-- Please enter the number corresponding to the question --\n")
             else:
                 break
 
         # The reason it stores the id is so that if the user wants to see the movie info for a trending film,
         # it doesnt give multiple results by that name, and can instead search by ID
 
+
+while True:
+    api_key = str(input("Please enter your TMDB API key here: "))
+    try:
+        test_data = requests.get(f"https://api.themoviedb.org/3/trending/all/day?api_key={api_key}")
+        if test_data.status_code == 200:
+            break
+        else:
+            print("\n-- ERROR --\nlease check your API key is correct\n\n________________________________\n")
+            continue
+    except:
+        print("\n-- ERROR --\nplease check your connection is working\n\n________________________________\n")
+        continue
+
+# gets the API key & checks if its valid, along with the connection
 
 api = API()
 movie_watchlist = []
@@ -257,33 +235,33 @@ def input_val(question, inp_type):
     while True:
         try:
             result = inp_type(input(question))
-            return result
+            if inp_type == int:
+                if result > -1:
+                    return result
+                else:
+                    print('\nPlease enter the number corresponding to the question\n')
+            else:
+                return result
         except:
-            print()
-            print('- invalid input -')
-            print('please try again')
-            print()
+            print('\n- invalid input -')
+            print('please try again\n')
 
 
 def add_to_watchlist(results_movie):
     """allow the user to append a movie the the watchlist or return to the menu if they dont"""
     while True:
-        print("________________________________")
-        print()
+        print("________________________________\n")
         add_watchlist = input_val("Do you want to:\n1) Add this film to watchlist\n2) Return to the menu\n", int)
         if add_watchlist == 1:
             movie_watchlist.append([results_movie['title'], results_movie['id']])  # Adds both the title and id of each film into the watchlist
-            print()
-            print("--- Movie Added to Watchlist ---")
+            print("\n--- Movie Added to Watchlist ---")
             time.sleep(1.5)
             break
         elif add_watchlist == 2:  # Returns to menu
             menu()
             break
         else:
-            print()
-            print("please enter the number corresponding the the question")
-            print()
+            print("\nplease enter the number corresponding the the question\n")
 
 
 def remove_watchlist():
@@ -294,9 +272,7 @@ def remove_watchlist():
             movie_watchlist.pop(remove_watchlist-1)  # Removes both the name and id of a movie from the watchlist
             break
         except:
-            print()
-            print("Please enter the number corresponding to a film")
-            print()
+            print("\nPlease enter the number corresponding to a film\n")
 
 
 def print_watchlist():
@@ -305,9 +281,7 @@ def print_watchlist():
     """
     while True:
         print("________________________________")
-        print()
-        print("Watchlist:")
-        print()
+        print("\nWatchlist:\n")
         i = 0
         while i < len(movie_watchlist):
             print(f'{i+1})', movie_watchlist[i][0])
@@ -322,8 +296,7 @@ def print_watchlist():
             break
             # checks to see if watchlist is empty
         else:
-            print("________________________________")
-            print()
+            print("________________________________\n")
             menu_watchlist = input_val("1) View a movie in the watchlist\n2) remove a movie from watchlist\n3) return to menu\n", int)
             if menu_watchlist == 1:
                 watchlist_view = input_val("enter the nummber corresponding to the film ", int)
@@ -333,7 +306,7 @@ def print_watchlist():
             elif menu_watchlist == 3:
                 break
             else:
-                print("invalid input")
+                print("Please enter the number corresponding to the question")
 
             # uses search_ID to get movie data as similar to the trending function the ID is stored in the watchlist for convenience
             # uses remove_watchlist function to remove a movie
@@ -344,8 +317,7 @@ def menu():
     Asks the user what they would like to do, and they respond by entering the corresponding number
     """
     while True:
-        print("________________________________")
-        print()
+        print("________________________________\n")
         print(f"Would you like to:\n1) Show trending movies?\n2) Search for a film?\n3) view watchlist?\n4) Exit?")
         # main menu
         main_menu = input_val('', int)
@@ -354,8 +326,7 @@ def menu():
             api.get_trending()
 
         elif main_menu == 2: # search menu
-            print("________________________________")
-            print()
+            print("________________________________\n")
             while True:
                 print(f"Would you like to:\n1) Search by name?\n2) Search by year?\n3) Search by ID")
                 menu_search = input_val('', int)
@@ -369,7 +340,10 @@ def menu():
                 elif menu_search == 2: # search by year of release
                     print()
                     movie_year = input_val("Movie Year: ", int)
-                    api.search_year(f'{movie_year}')
+                    if movie_year > 1850 and movie_year < 2030:
+                        api.search_year(f'{movie_year}')
+                    else:
+                        print("\n-- NO RESULTS FOUND --\n")
                     break
 
                 elif menu_search == 3: # search by movie ID
@@ -379,9 +353,7 @@ def menu():
                     break
 
                 else:
-                    print()
-                    print("please enter the corresponding number to the question")
-                    print()
+                    print("\nplease enter the corresponding number to the question\n")
 
         elif main_menu == 3: # prints watchlist
             print_watchlist()
