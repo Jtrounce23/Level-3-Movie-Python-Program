@@ -301,7 +301,10 @@ def print_watchlist():
             menu_watchlist = input_val("1) View a movie in the watchlist\n2) remove a movie from watchlist\n3) return to menu\n", int)
             if menu_watchlist == 1:
                 watchlist_view = input_val("enter the nummber corresponding to the film ", int)
-                api.search_ID(movie_watchlist[watchlist_view - 1][1])
+                if watchlist_view <= len(movie_watchlist):
+                    api.search_ID(movie_watchlist[watchlist_view - 1][1])
+                else:
+                    print("\n-- There is no film in watchlist that corresponds to this number --\n")
             elif menu_watchlist == 2:
                 remove_watchlist()
             elif menu_watchlist == 3:
