@@ -134,7 +134,7 @@ class API():
 
             cast = (cast_data['cast'])
             self.top_cast = []
-
+   
             i = 0
             a = 0
             while i < len(cast) and a < 5:
@@ -218,7 +218,7 @@ while True:
         if test_data.status_code == 200:
             break
         else:
-            print("\n-- ERROR --\nlease check your API key is correct\n\n________________________________\n")
+            print("\n-- ERROR --\nplease check your API key is correct\n\n________________________________\n")
             continue
     except:
         print("\n-- ERROR --\nplease check your connection is working\n\n________________________________\n")
@@ -239,7 +239,8 @@ def input_val(question, inp_type):
                 if result > -1:
                     return result
                 else:
-                    print('\nPlease enter the number corresponding to the question\n')
+                    print('\n- invalid input -')
+                    print('please try again\n')
             else:
                 return result
         except:
