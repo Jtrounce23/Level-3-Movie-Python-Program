@@ -47,8 +47,8 @@ Vote Average: {self.rating}\n\nPlot: {self.plot}""")
             i += 1
 
 
-class API():
-    """This class involves everything to do with the API"""
+class Api():
+    """This class involves everything to do with the Api"""
 
     def __init__(self):
         """
@@ -226,7 +226,7 @@ while True:
 
 # gets the API key & checks if its valid, along with the connection
 
-api = API()
+api = Api()
 movie_watchlist = []
 
 
