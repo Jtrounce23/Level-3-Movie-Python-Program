@@ -69,6 +69,8 @@ class Api():
     def call_api(self, tag, list_name):
         """call the api by combining a base and tag url.
         It then tests whether its worked & if results have been found or not
+        tag: string
+        list_name: string
         """
         try:
             movie_responce = requests.get(self.API_BASE_URL + tag)
@@ -91,6 +93,7 @@ class Api():
         """Get the info for a film using the results of the call API.
         It has to understand what kind of results it has,
         then sends it to the display movie in Movie class 
+        tag: string
         """
         try:  # there are results
             
@@ -162,16 +165,22 @@ class Api():
             print("-- NO RESULTS FOUND --")
 
     def search_name(self, movie_name):
-        """use get_movie_data function to search for a film by name"""
+        """use get_movie_data function to search for a film by name
+        movie_name: string
+        """
         self.get_movie_data(self.API_SEARCH_TITLE_URL_TAG + movie_name)
 
     def search_year(self, movie_year):
-        """use the get_movie_data function to search for top movies by year released"""
+        """use the get_movie_data function to search for top movies by year released
+        movie_year: string
+        """
         self.get_movie_data(self.API_DISCOVER_YEAR_URL_TAG + movie_year)
         
-    def search_ID(self, movie_ID):
-        """use the get_movie_data function to get movie by ID"""
-        self.get_movie_data(self.API_MOVIE_URL_TAG + f'{movie_ID}' + self.API_KEY_URL_TAG)
+    def search_id(self, movie_id):
+        """use the get_movie_data function to get movie by ID
+        movie_id: int
+        """
+        self.get_movie_data(self.API_MOVIE_URL_TAG + f'{movie_id}' + self.API_KEY_URL_TAG)
 
     def get_trending(self):
         """use the call_api function to get trending. 
@@ -200,7 +209,7 @@ class Api():
             trending_menu = input_val("Enter the corresponding number to view the film, or enter 0 to return to menu\n", int)
             if trending_menu != 0:
                 try:
-                    self.search_ID(trending_id[trending_menu - 1])
+                    self.search_id(trending_id[trending_menu - 1])
                     break
                 except:
                     print("\n-- Please enter the number corresponding to the question --\n")
@@ -302,7 +311,7 @@ def print_watchlist():
             if menu_watchlist == 1:
                 watchlist_view = input_val("enter the nummber corresponding to the film ", int)
                 if watchlist_view <= len(movie_watchlist):
-                    api.search_ID(movie_watchlist[watchlist_view - 1][1])
+                    api.search_id(movie_watchlist[watchlist_view - 1][1])
                 else:
                     print("\n-- There is no film in watchlist that corresponds to this number --\n")
             elif menu_watchlist == 2:
@@ -312,7 +321,7 @@ def print_watchlist():
             else:
                 print("Please enter the number corresponding to the question")
 
-            # uses search_ID to get movie data as similar to the trending function the ID is stored in the watchlist for convenience
+            # uses search_id to get movie data as similar to the trending function the ID is stored in the watchlist for convenience
             # uses remove_watchlist function to remove a movie
 
 
@@ -353,7 +362,7 @@ def menu():
                 elif menu_search == 3:  # search by movie ID
                     print()
                     ID = input_val("Film ID: ", int)
-                    api.search_ID(ID)
+                    api.search_id(ID)
                     break
 
                 else:
